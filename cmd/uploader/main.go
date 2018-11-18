@@ -12,12 +12,6 @@ import (
 
 const (
 	pathToRPi = "raspberrypi.local:22"
-
-	localAgentFile  = "./build/agent"
-	remoteAgentFile = "/home/pi/agent"
-
-	localFindAndKillScript  = "./scripts/find_and_kill_agent.sh"
-	remoteFindAndKillScript = "/home/pi/find_and_kill_agent.sh"
 )
 
 var config = &ssh.ClientConfig{
@@ -29,20 +23,19 @@ var config = &ssh.ClientConfig{
 }
 
 func main() {
-	if err := uploadFile(localFindAndKillScript, remoteFindAndKillScript, "0755"); err != nil {
-		log.Fatal("Failed to upload find and kill script.", err)
+	files := [][]string{
+		[]string{"build/agent", "/home/pi/agent", "0755"},
 	}
 
-	if err := executeRemoteCommand(remoteFindAndKillScript); err != nil {
-		log.Fatal("Error while executing find and kill command.", err)
-	}
+	for _, f := range files {
+		local := f[0]
+		remote := f[1]
+		permissions := f[2]
 
-	if err := uploadFile(localAgentFile, remoteAgentFile, "0755"); err != nil {
-		log.Fatal("Failed to upload agent.", err)
-	}
-
-	if err := fireAndForget(remoteAgentFile); err != nil {
-		log.Fatal("Error while executing find and kill command.", err)
+		fmt.Printf("Uploading %s to %s (%s)", local, remote, permissions)
+		if err := uploadFile(local, remote, permissions); err != nil {
+			log.Fatal("Failed to upload agent.", err)
+		}
 	}
 }
 
