@@ -7,10 +7,20 @@ import (
 )
 
 const (
-	start = 25
-	stop  = 310
-	cw    = stop - start
-	ccw   = stop + start
+	frequency  = 63
+	resolution = 4096 // 12 bits
+
+	// 1 second in microseconds
+	timePerCycle = 1000000 / frequency / resolution
+
+	// Stop rotating at the 1.5s
+	stop = 1500 / timePerCycle
+
+	// Max speed CW -> 1s
+	cw = 1000 / timePerCycle
+
+	// Max speed CCW -> 2s
+	ccw = 2000 / timePerCycle
 )
 
 // Driver drives the wheels
