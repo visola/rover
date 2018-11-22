@@ -1,0 +1,72 @@
+<style type="text/css">
+	
+	.JoystickMain
+	{
+		width: 200px;
+		height: 200px;
+		background-color: black;
+		opacity : 0.6;
+		border-radius: 50%;
+	}
+
+	.Joystick
+	{
+		width: 50px;
+		height: 50px;
+
+		position: relative;
+		background-color: white;
+		border: black 1px solid;
+		border-radius: 50%;
+		opacity : 0.5;
+	}
+
+	.JoystickZone
+	{
+		position: absolute;
+		left: 50%;
+		top: 10%;
+	}
+
+	html
+	{
+		margin :0 ;
+	}
+
+	body
+	{
+		margin: 0;
+	}
+
+</style>
+
+<meta name="viewport" content="width=device-width, user-scalable=no">
+
+<script type='text/javascript' src='jquery-3.2.1.min.js'></script>
+<script type="text/javascript" src='SimpleJoystick.js'></script>
+
+<script type="text/javascript">
+	setInterval(function(argument)
+	{
+		if(JoystickReady)
+		{
+			document.getElementById("log").innerHTML = "X : " + GetJoystick_X() + "  -  Y : " + GetJoystick_Y();
+			document.getElementById("logpercent").innerHTML = "X : " + GetJoystick_X_Percent() + "%  -  Y : " + GetJoystick_Y_Percent() + "%";
+		}
+		
+	}, 100);
+</script>
+
+<div class="JoystickZone">
+	<div class="JoystickMain" id="JoystickMain">
+		<div class="Joystick" id="Joystick">
+		</div>
+	</div>
+</div>
+
+
+</br>
+<button onclick="LoadJoystick()">Load Joystick</button>
+<div id="log"></div>
+<div id="logpercent"></div>
+

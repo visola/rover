@@ -91,7 +91,5 @@ func uploadFile(pathToFile string, remoteName string, permission string) error {
 	f, _ := os.Open(pathToFile)
 	defer f.Close()
 
-	client.CopyFile(f, remoteName, permission)
-
-	return nil
+	return client.CopyFile(f, remoteName, permission)
 }

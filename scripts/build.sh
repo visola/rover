@@ -3,6 +3,8 @@
 rm -Rf build
 mkdir build
 
+packr
+
 # Build all packages to run in this computer
 go build -o build/uploader cmd/uploader/main.go
 

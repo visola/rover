@@ -1,26 +1,34 @@
 package wheel
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/visola/rover/pkg/finalizer"
 	"gobot.io/x/gobot/drivers/i2c"
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
 const (
-	frequency  = 63
-	resolution = 4096 // 12 bits
+	frequency  = 50.
+	resolution = 4096. // 12 bits
 
 	// 1 second in microseconds
-	timePerCycle = 1000000 / frequency / resolution
+	timePerCycle = 1000000. / frequency / resolution
+)
 
+var (
 	// Stop rotating at the 1.5s
-	stop = 1500 / timePerCycle
+	stop = uint16(math.Round(1500. / timePerCycle))
 
 	// Max speed CW -> 1s
-	cw = 1000 / timePerCycle
+	cw = uint16(math.Round(1000. / timePerCycle))
 
 	// Max speed CCW -> 2s
-	ccw = 2000 / timePerCycle
+	ccw = uint16(math.Round(2000. / timePerCycle))
+
+	// Difference from max speed forward and stop
+	diff = ccw - stop
 )
 
 // Driver drives the wheels
@@ -36,6 +44,7 @@ type Driver struct {
 
 // NewDriver creates a new wheel driver from the RaspberryPi adapter
 func NewDriver(adaptor *raspi.Adaptor) *Driver {
+	fmt.Printf("Stop: %d, CCW: %d, CW: %d\n", stop, ccw, cw)
 	wheelDriver := &Driver{
 		driver: i2c.NewPCA9685Driver(adaptor),
 	}
@@ -47,22 +56,11 @@ func NewDriver(adaptor *raspi.Adaptor) *Driver {
 	return wheelDriver
 }
 
-// MoveBackwards drives backwards
-func (w *Driver) MoveBackwards() {
-	w.setLeftSide(0, ccw)
-	w.setRightSide(0, cw)
-}
-
-// MoveForward drives forward
-func (w *Driver) MoveForward() {
-	w.setLeftSide(0, cw)
-	w.setRightSide(0, ccw)
-}
-
-// Stop stops all wheels
-func (w *Driver) Stop() {
-	w.setLeftSide(0, stop)
-	w.setRightSide(0, stop)
+// Move sets the speed between 100 and -100
+func (w *Driver) Move(speed int) {
+	speedInCycles := uint16(speed * int(diff) / 100)
+	w.setRightSide(0, stop+speedInCycles)
+	w.setLeftSide(0, stop-speedInCycles)
 }
 
 func (w *Driver) setLeftSide(start uint16, stop uint16) {

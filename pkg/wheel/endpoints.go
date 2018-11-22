@@ -1,6 +1,7 @@
 package wheel
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -10,29 +11,30 @@ import (
 
 var wheelDriver *Driver
 
+// Movement VO to store car movement
+type Movement struct {
+	XAxis int
+	YAxis int
+}
+
 // RegisterEndpoints registers all endpoints associated with the wheel
 func RegisterEndpoints(router *mux.Router) {
 	fmt.Println("Registering wheel endpoints...")
 	wheelDriver = NewDriver(adaptor.RPi)
-	router.HandleFunc("/wheels/backwards", driverBackwards)
-	router.HandleFunc("/wheels/forward", driverForward)
-	router.HandleFunc("/wheels/stop", stopDriving)
+	router.HandleFunc("/wheels", setWheelsMovement).Methods(http.MethodPut)
 }
 
-func driverBackwards(w http.ResponseWriter, req *http.Request) {
-	wheelDriver.MoveBackwards()
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
-}
+func setWheelsMovement(w http.ResponseWriter, req *http.Request) {
+	decoder := json.NewDecoder(req.Body)
+	var movement Movement
 
-func driverForward(w http.ResponseWriter, req *http.Request) {
-	wheelDriver.MoveForward()
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
-}
+	err := decoder.Decode(&movement)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Sorry, something went wrong: '%s'\n", err)))
+	}
 
-func stopDriving(w http.ResponseWriter, req *http.Request) {
-	wheelDriver.Stop()
+	wheelDriver.Move(movement.YAxis)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
