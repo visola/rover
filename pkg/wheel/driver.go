@@ -1,7 +1,6 @@
 package wheel
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/visola/rover/pkg/finalizer"
@@ -44,7 +43,6 @@ type Driver struct {
 
 // NewDriver creates a new wheel driver from the RaspberryPi adapter
 func NewDriver(adaptor *raspi.Adaptor) *Driver {
-	fmt.Printf("Stop: %d, CCW: %d, CW: %d\n", stop, ccw, cw)
 	wheelDriver := &Driver{
 		driver: i2c.NewPCA9685Driver(adaptor),
 	}

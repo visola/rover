@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/visola/rover/pkg/adaptor"
+	"github.com/visola/rover/pkg/light"
 )
 
 var wheelDriver *Driver
@@ -32,6 +33,12 @@ func setWheelsMovement(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("Sorry, something went wrong: '%s'\n", err)))
+	}
+
+	if movement.YAxis < 0 {
+		light.FrontLightOn()
+	} else {
+		light.FrontLightOff()
 	}
 
 	wheelDriver.Move(movement.YAxis)
